@@ -2,6 +2,7 @@ const express = require('express');
 const parser = require('body-parser');
 const morgan = require('morgan');
 const path = require('path');
+const axios = require('axios');
 const app = express();
 const server = require('http').Server(app);
 const io = require('socket.io')(server);
@@ -14,6 +15,17 @@ app.use(parser.json());
 app.use(parser.urlencoded({ extended: true }));
 //todo: input correct directory for indexhtml
 app.use(express.static(path.join(__dirname + '/../client/dist/')));
+
+app.get('/api/prompt', (req, res) => {
+  axios.get('https://opinionated-quotes-api.gigalixirapp.com/v1/quotes/')
+  .then((data) => {
+    console.log('data here', data.data)
+    res.status(200).send(data.data);
+  })
+  .catch((error) => {
+    console.log(error);
+  });
+})
 
 io.on('connection', (socket) => {
   console.log('new typer joined:', socket.id)
