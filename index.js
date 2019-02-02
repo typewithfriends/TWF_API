@@ -49,4 +49,9 @@ io.on('connection', (socket) => {
     socket.broadcast.emit('typing', data);
   });
 
+  // listen for progress  
+  socket.on('progress', (data) => {
+    io.sockets.emit('progress', data)
+  });
+
 })
