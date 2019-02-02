@@ -32,6 +32,8 @@ io.on('connection', (socket) => {
 
   socket.emit('welcome', 'Welcome to Type with Friends!')
 
+  let users = [];
+
   //listen for joining the room 
   socket.on('joinRoom', (room) => {
     socket.join(room);
@@ -51,7 +53,8 @@ io.on('connection', (socket) => {
 
   // listen for progress  
   socket.on('progress', (data) => {
-    io.sockets.emit('progress', data)
+    users.push(data);
+    io.sockets.emit('progress', users)
   });
 
 })
