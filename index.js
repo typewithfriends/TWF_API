@@ -14,7 +14,7 @@ app.use(morgan('dev'));
 app.use(parser.json());
 app.use(parser.urlencoded({ extended: true }));
 //todo: input correct directory for indexhtml
-app.use(express.static(path.join(__dirname + '/../client/dist/')));
+app.use(express.static(path.join(__dirname + '/../TWF_Client/client/dist/')));
 
 app.get('/api/prompt', (req, res) => {
   axios.get('https://opinionated-quotes-api.gigalixirapp.com/v1/quotes/')
