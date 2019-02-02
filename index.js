@@ -16,16 +16,16 @@ app.use(parser.urlencoded({ extended: true }));
 //todo: input correct directory for indexhtml
 app.use(express.static(path.join(__dirname + '/../TWF_Client/client/dist/')));
 
-app.get('/api/prompt', (req, res) => {
-  axios.get('https://opinionated-quotes-api.gigalixirapp.com/v1/quotes/')
-  .then((data) => {
-    console.log('data here', data.data)
-    res.status(200).send(data.data);
-  })
-  .catch((error) => {
-    console.log(error);
-  });
-})
+// app.get('/api/prompt', (req, res) => {
+//   axios.get('https://opinionated-quotes-api.gigalixirapp.com/v1/quotes/')
+//   .then((data) => {
+//     console.log('data here', data.data)
+//     res.status(200).send(data.data);
+//   })
+//   .catch((error) => {
+//     console.log(error);
+//   });
+// })
 
 let users = [];
 
@@ -66,4 +66,13 @@ io.on('connection', (socket) => {
     io.sockets.emit('progress', users);
   });
 
+  socket.on('prompt', () => {
+    axios.get('https://opinionated-quotes-api.gigalixirapp.com/v1/quotes/')
+      .then((data) => {
+      io.sockets.emit('prompt', data.data);
+    })
+    .catch((error) => {
+      console.log('error getting prompt: ', error);
+    });
+  })
 })
