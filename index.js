@@ -53,8 +53,17 @@ io.on('connection', (socket) => {
 
   // listen for progress  
   socket.on('progress', (data) => {
-    users.push(data);
-    io.sockets.emit('progress', users)
+    let found = false;
+    for (let i = 0; i < users.length; i++) {
+      if (users[i].username === data.username) {
+        users[i].progress = data.progress;
+        found = true;
+      }
+    }
+    if (!found) {
+      users.push(data);
+    }
+    io.sockets.emit('progress', users);
   });
 
 })
