@@ -27,12 +27,12 @@ app.get('/api/prompt', (req, res) => {
   });
 })
 
+let users = [];
+
 io.on('connection', (socket) => {
   console.log('new typer joined:', socket.id)
 
   socket.emit('welcome', 'Welcome to Type with Friends!')
-
-  let users = [];
 
   //listen for joining the room 
   socket.on('joinRoom', (room) => {
