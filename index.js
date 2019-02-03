@@ -90,11 +90,16 @@ io.on('connection', (socket) => {
     .then((data) => {
       io.sockets.emit('prompt', data.data);
       io.sockets.emit('gameStartedAll', 'Game has started!');
-      io.to('players').emit('gameStartedPlayers', 'Start typing!');
+      // io.to('players').emit('gameStartedPlayers', 'Start typing!');
     })
     .catch((error) => {
       console.log('error getting prompt: ', error);
     })
+  })
+
+  socket.on('gameOver', (username) => {
+    players = [];
+    io.sockets.emit('gameOver', username);
   })
 
 })
