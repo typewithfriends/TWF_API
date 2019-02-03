@@ -27,11 +27,14 @@ app.use(express.static(path.join(__dirname + '/../TWF_Client/client/dist/')));
 // })
 
 let players = [];
+let gameInProgress = false;
+let prompt = '';
 
 io.on('connection', (socket) => {
   console.log('new typer joined:', socket.id)
 
-  socket.emit('welcome', 'Welcome to Type with Friends!')
+  //emit state of the game on join
+  socket.emit('welcome', { gameInProgress, prompt })
 
   //listen for joining the room 
   socket.on('joinRoom', (room) => {
@@ -88,8 +91,11 @@ io.on('connection', (socket) => {
   socket.on('gameStart', () => {
     axios.get('https://opinionated-quotes-api.gigalixirapp.com/v1/quotes/')
     .then((data) => {
-      io.sockets.emit('prompt', data.data);
+      prompt = data.data.quotes[0].quote;
+      gameInProgress = true;
+      io.sockets.emit('prompt', prompt);
       io.sockets.emit('gameStartedAll', 'Game has started!');
+      io.sockets.emit('gameInProgress', gameInProgress);
       // io.to('players').emit('gameStartedPlayers', 'Start typing!');
     })
     .catch((error) => {
@@ -99,7 +105,9 @@ io.on('connection', (socket) => {
 
   socket.on('gameOver', (username) => {
     players = [];
+    gameInProgress = false;
     io.sockets.emit('gameOver', username);
+    io.sockets.emit('gameInProgress', gameInProgress);
   })
 
 })
