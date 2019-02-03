@@ -14,18 +14,20 @@ app.use(morgan('dev'));
 app.use(parser.json());
 app.use(parser.urlencoded({ extended: true }));
 //todo: input correct directory for indexhtml
-app.use(express.static(path.join(__dirname + '/../client/dist/')));
+app.use(express.static(path.join(__dirname + '/../TWF_Client/client/dist/')));
 
-app.get('/api/prompt', (req, res) => {
-  axios.get('https://opinionated-quotes-api.gigalixirapp.com/v1/quotes/')
-  .then((data) => {
-    console.log('data here', data.data)
-    res.status(200).send(data.data);
-  })
-  .catch((error) => {
-    console.log(error);
-  });
-})
+// app.get('/api/prompt', (req, res) => {
+//   axios.get('https://opinionated-quotes-api.gigalixirapp.com/v1/quotes/')
+//   .then((data) => {
+//     console.log('data here', data.data)
+//     res.status(200).send(data.data);
+//   })
+//   .catch((error) => {
+//     console.log(error);
+//   });
+// })
+
+let users = [];
 
 io.on('connection', (socket) => {
   console.log('new typer joined:', socket.id)
@@ -49,4 +51,28 @@ io.on('connection', (socket) => {
     socket.broadcast.emit('typing', data);
   });
 
+  // listen for progress  
+  socket.on('progress', (data) => {
+    let found = false;
+    for (let i = 0; i < users.length; i++) {
+      if (users[i].username === data.username) {
+        users[i].progress = data.progress;
+        found = true;
+      }
+    }
+    if (!found) {
+      users.push(data);
+    }
+    io.sockets.emit('progress', users);
+  });
+
+  socket.on('prompt', () => {
+    axios.get('https://opinionated-quotes-api.gigalixirapp.com/v1/quotes/')
+      .then((data) => {
+      io.sockets.emit('prompt', data.data);
+    })
+    .catch((error) => {
+      console.log('error getting prompt: ', error);
+    });
+  })
 })
