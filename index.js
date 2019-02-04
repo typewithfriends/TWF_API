@@ -74,7 +74,7 @@ io.on('connection', (socket) => {
       if (err) {
         console.log('error getting prompt: ', err);
       } else {
-        prompt = data.data.quotes[0].quote;
+        prompt = data[0].dataValues.quote;
         gameInProgress = true;
         io.sockets.emit('prompt', prompt);
         io.sockets.emit('gameStartedAll', 'Game has started!');
