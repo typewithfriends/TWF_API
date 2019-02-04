@@ -62,3 +62,7 @@ typings/
 
 # placeholder front end scripts
 FrontEndScripts.js
+
+# quotes data
+quotebase.js
+quotes.csv
