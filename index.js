@@ -1,30 +1,20 @@
 const express = require('express');
-const parser = require('body-parser');
-const morgan = require('morgan');
+// const parser = require('body-parser');  removing for deployment
+// const morgan = require('morgan'); removing for deployment
 const path = require('path');
-const axios = require('axios');
+// const axios = require('axios');
 const app = express();
 const server = require('http').Server(app);
 const io = require('socket.io')(server);
 const PORT = 3000;
+const { getQuote } = require('./database/dbHelpers')
 
 server.listen(PORT, () => console.log('listening on port ' + PORT + ', fellas'));
 
-app.use(morgan('dev'));
-app.use(parser.json());
-app.use(parser.urlencoded({ extended: true }));
+// app.use(morgan('dev')); removing for deployment
+// app.use(parser.json()); removing for deployment
+// app.use(parser.urlencoded({ extended: true }));  removing for deployment
 app.use(express.static(path.join(__dirname + '/../TWF_Client/client/dist/')));
-
-// app.get('/api/prompt', (req, res) => {
-//   axios.get('https://opinionated-quotes-api.gigalixirapp.com/v1/quotes/')
-//   .then((data) => {
-//     console.log('data here', data.data)
-//     res.status(200).send(data.data);
-//   })
-//   .catch((error) => {
-//     console.log(error);
-//   });
-// })
 
 let players = [];
 let gameInProgress = false;
@@ -34,7 +24,7 @@ io.on('connection', (socket) => {
   console.log('new typer joined:', socket.id)
 
   //emit state of the game on join
-  socket.emit('welcome', { gameInProgress, prompt })
+  socket.emit('welcome', { gameInProgress, prompt, players })
 
   //listen for joining the room 
   socket.on('joinRoom', (room) => {
@@ -68,16 +58,6 @@ io.on('connection', (socket) => {
     io.sockets.emit('progress', players);
   });
 
-  // socket.on('prompt', () => {
-  //   axios.get('https://opinionated-quotes-api.gigalixirapp.com/v1/quotes/')
-  //   .then((data) => {
-  //     io.sockets.emit('prompt', data.data);
-  //   })
-  //   .catch((error) => {
-  //     console.log('error getting prompt: ', error);
-  //   });
-  // })
-
   socket.on('joinGame', (username) => {
     players.push({
       username,
@@ -89,17 +69,17 @@ io.on('connection', (socket) => {
   })
 
   socket.on('gameStart', () => {
-    axios.get('https://opinionated-quotes-api.gigalixirapp.com/v1/quotes/')
-    .then((data) => {
-      prompt = data.data.quotes[0].quote;
-      gameInProgress = true;
-      io.sockets.emit('prompt', prompt);
-      io.sockets.emit('gameStartedAll', 'Game has started!');
-      io.sockets.emit('gameInProgress', gameInProgress);
-      // io.to('players').emit('gameStartedPlayers', 'Start typing!');
-    })
-    .catch((error) => {
-      console.log('error getting prompt: ', error);
+    let id = Math.floor(Math.random() * 77) + 1;
+    getQuote(id, (err, data) => {
+      if (err) {
+        console.log('error getting prompt: ', err);
+      } else {
+        prompt = data.data.quotes[0].quote;
+        gameInProgress = true;
+        io.sockets.emit('prompt', prompt);
+        io.sockets.emit('gameStartedAll', 'Game has started!');
+        io.sockets.emit('gameInProgress', gameInProgress);
+      }
     })
   })
 
