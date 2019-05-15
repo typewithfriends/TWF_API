@@ -1,24 +1,9 @@
-const Sequelize = require('sequelize');
+const mongoose = require('mongoose');
 
-const sequelize = new Sequelize({
-  database: 'twf',
-  username: 'postgres',
-  password: 'docker',
-  host: '54.183.26.67',
-  logging: false,
-  dialect: 'postgres',
-  pool: {
-    max: 8,
-    min: 0,
-    idle: 10000
-  },
-  operatorsAliases: false
-});
+mongoose.connect('mongodb://localhost/twf', { useNewUrlParser: true });
 
-sequelize.authenticate().then(() => {
-  console.log("Successfully connected to database bruh");
-}).catch((err) => {
-  console.log(err);
-});
+const db = mongoose.connection;
+db.on('error', () => console.error('Error connecting to db'));
+db.once('open', () => console.log('Successfully connected to database bruh'));
 
-module.exports = { sequelize };
+module.exports = mongoose; 

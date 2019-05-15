@@ -1,27 +1,10 @@
-const { sequelize } = require('./index.js');
-const Sequelize = require('sequelize');
-
-const Quotes = sequelize.define('quotes', {
-  id: {
-    type: Sequelize.INTEGER,
-    primaryKey: true
-  },
-  quote: Sequelize.TEXT
-}, {
-  timestamps: false
-});
-
-sequelize.sync();
-
+const { Quotes } = require('./model.js');
 
 const getQuote = (id, callback) => {
-  Quotes.findAll({ where: { id } })
-    .then((data) => {
-      callback(null, data);
-    })
-    .catch((err) => {
-      callback(err);
-    })
+  Quotes.findById(id, (err, quote) => {
+    if (err) callback(err);
+    else callback(null, quote);
+  })
 }
 
-module.exports = { getQuote, Quotes }
+module.exports = { getQuote }
